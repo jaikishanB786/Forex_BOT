@@ -52,9 +52,11 @@ class TradingConfig:
     """General trading parameters."""
     mode: str = "DRY_RUN"
     symbols: List[str] = field(default_factory=lambda: ["EURUSD"])
+    symbol_mapping: Dict[str, str] = field(default_factory=dict)
     timeframe: str = "M15"
     candle_count: int = 200
     magic_number: int = 234000
+    stale_tick_seconds: int = 300
 
 
 @dataclass
@@ -68,12 +70,16 @@ class StrategyConfig:
 class RiskConfig:
     """Risk management parameters."""
     max_risk_per_trade: float = 0.01
+    use_fixed_lot: bool = False
+    fixed_lot_size: float = 0.01
     max_open_trades: int = 3
     max_daily_drawdown: float = 0.05
     default_sl_pips: int = 30
     default_tp_pips: int = 60
     trailing_stop: bool = False
     trailing_stop_pips: int = 20
+    max_spread_points: int = 20
+    slippage_points: int = 5
 
 
 @dataclass
@@ -170,9 +176,11 @@ def load_config(config_path: Optional[Path] = None) -> BotConfig:
     trading = TradingConfig(
         mode=mode.upper(),
         symbols=trading_data.get("symbols", ["EURUSD"]),
+        symbol_mapping=trading_data.get("symbol_mapping") or {},
         timeframe=trading_data.get("timeframe", "M15"),
         candle_count=trading_data.get("candle_count", 200),
         magic_number=trading_data.get("magic_number", 234000),
+        stale_tick_seconds=trading_data.get("stale_tick_seconds", 300),
     )
 
     # ---- Strategy ----
@@ -186,12 +194,16 @@ def load_config(config_path: Optional[Path] = None) -> BotConfig:
     risk_data = yaml_data.get("risk", {})
     risk = RiskConfig(
         max_risk_per_trade=risk_data.get("max_risk_per_trade", 0.01),
+        use_fixed_lot=risk_data.get("use_fixed_lot", False),
+        fixed_lot_size=risk_data.get("fixed_lot_size", 0.01),
         max_open_trades=risk_data.get("max_open_trades", 3),
         max_daily_drawdown=risk_data.get("max_daily_drawdown", 0.05),
         default_sl_pips=risk_data.get("default_sl_pips", 30),
         default_tp_pips=risk_data.get("default_tp_pips", 60),
         trailing_stop=risk_data.get("trailing_stop", False),
         trailing_stop_pips=risk_data.get("trailing_stop_pips", 20),
+        max_spread_points=risk_data.get("max_spread_points", 20),
+        slippage_points=risk_data.get("slippage_points", 5),
     )
 
     # ---- Schedule ----
