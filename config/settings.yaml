@@ -1,0 +1,45 @@
+# ============================================
+# Forex AI Bot — Configuration
+# ============================================
+
+trading:
+  mode: DRY_RUN          # DRY_RUN | LIVE — overridden by .env TRADING_MODE
+  symbols:
+    - EURUSD
+    - GBPUSD
+    - USDJPY
+  timeframe: M15          # M1, M5, M15, M30, H1, H4, D1
+  candle_count: 200       # Number of candles to fetch per cycle
+  magic_number: 234000    # Unique ID for this bot's orders
+
+strategy:
+  name: moving_average    # Strategy module to use
+  params:
+    fast_period: 10
+    slow_period: 30
+    signal_period: 9
+
+risk:
+  max_risk_per_trade: 0.01    # 1% of account balance
+  max_open_trades: 3
+  max_daily_drawdown: 0.05    # 5% max daily loss — bot stops trading
+  default_sl_pips: 30         # Default stop-loss in pips
+  default_tp_pips: 60         # Default take-profit in pips
+  trailing_stop: false
+  trailing_stop_pips: 20
+
+schedule:
+  interval_seconds: 60        # How often to run the strategy loop
+  trading_hours:
+    start: "01:00"            # UTC
+    end: "23:00"              # UTC
+  skip_weekends: true
+
+logging:
+  level: DEBUG                # DEBUG, INFO, WARNING, ERROR
+  log_to_file: true
+  log_dir: logs
+
+notifications:
+  enabled: false
+  telegram: false
